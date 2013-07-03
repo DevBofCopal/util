@@ -1,0 +1,38 @@
+
+
+
+class public dateutils
+
+    method public static BBjNumber addWorkdays(BBjNumber startDate, BBjNumber days)
+    
+           
+        while days>0
+            startDate=startDate+1
+            while date(startDate,"%W")="1" or date(startDate,"%W")="7"
+                startDate=startDate+1
+            wend 
+            
+            days=days-1
+        wend
+
+        while days<0
+            startDate=startDate-1
+            while date(startDate,"%W")="1" or date(startDate,"%W")="7"
+                startDate=startDate-1
+            wend 
+            
+            days=days+1
+        wend        
+    
+        methodret startDate
+    
+    methodend
+
+classend
+
+
+for i=0 to -10 step -1
+
+    print i,") ",date(dateutils.addWorkdays(jul(0,0,0),i):"%Dz.%Mz.%Yl %Dl")
+
+next
