@@ -155,6 +155,17 @@ class public json
         #Fields!.put(field$,jsonArray!)
     
     methodend
+    
+    method public BBjString get(BBjString f$)
+    
+        rem TODO: implement a case-insensitive get method, maybe by introducing a case insensitive map. 
+        rem However, please always preserve original case for representation in the message!
+    
+        v! = #Fields!.get(f$)
+        
+        methodret str(v!)
+    
+    methodend
 
     method public String toString()
     
@@ -184,5 +195,7 @@ j!.set("numbers",v!)
 ? j!.getJsonString()
 
 rem parse from string
-j2! = new json("{""name"":""Duck"",""nephews"":[{""name"":""Huey""},{""name"":""Dewey""},{""name"":""Louie""}],""firstame"":""Donald""} ")
+j2! = new json("{""name"":""Duck"",""firstame"":""Donald"",""nephews"":[{""name"":""Huey""},{""name"":""Dewey""},{""name"":""Louie""}]} ")
 ? j2!.getJsonString()
+
+? j2!.get("name")
