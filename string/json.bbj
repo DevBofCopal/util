@@ -1,0 +1,188 @@
+class public json
+
+
+    field private java.util.HashMap Fields! = new java.util.HashMap()
+
+
+    method public json(BBjString jsonString$)
+    
+        #putJsonString(jsonString$)
+    
+    methodend
+    
+    method private void putJsonArray(BBjString s1$)
+    
+        v! = new BBjVector()
+
+        if pos(":"=s1$)=0 then
+            throw "Malformed element: "+s1$,43
+        fi
+    
+        f$=cvs(s1$(1,pos(":"=s1$)-1),3)
+        v$=cvs(s1$(pos(":"=s1$)+1),3)  
+        
+        f$=f$(2,len(f$)-2)
+        v$=v$(2,len(v$)-2)      
+
+        while pos("{"=v$)
+            v$=v$(pos("{"=v$))
+            v1$=v$(1,pos("}"=v$))
+            v$=v$(pos("}"=v$)+1)
+            j! = new json(v1$)
+            v!.addItem(j!)
+        wend
+
+        #set(f$,v!)
+    
+    methodend
+    
+    method public void putJsonString(BBjString s$)
+
+        #Fields!.clear()
+        rem TODO: maybe put in some more sanity checking
+        s$=cvs(s$,3)
+        
+        if s$(1,1)<> "{" or s$(len(s$),1)<>"}" throw "{} missing - check format!",43
+        
+        s$=s$(2,len(s$)-2)
+        
+        while cvs(s$,3)>"" 
+
+            if pos("["=s$) then
+                
+                if pos(","=s$)=0 then
+                    s1$=s$ 
+                    s$=""
+                    #putJsonArray(s1$)
+                    continue
+                else
+                    
+                    if pos("["=s$)<pos(","=s$) then
+                        s1$=s$(1,pos("]"=s$))
+                        s$=s$(pos("]"=s$)+1)
+                        if pos(","=s$) then
+                            s$=s$(pos(","=s$)+1)
+                        else
+                            s$=""
+                        fi
+                        #putJsonArray(s1$)
+                        continue
+                    fi
+                fi
+               
+            fi
+        
+            if pos(","=s$) then
+                s1$=s$(1,pos(","=s$)-1)
+                s$=s$(pos(","=s$)+1)
+            else
+                s1$=s$
+                s$=""
+            fi
+
+            if pos(":"=s1$)=0 then
+                throw "Malformed element: "+s1$,43
+            fi
+        
+            f$=cvs(s1$(1,pos(":"=s1$)-1),3)
+            v$=cvs(s1$(pos(":"=s1$)+1),3)
+            
+            if f$(1,1)<>"""" or f$(len(f$),1)<>"""" or v$(1,1)<>"""" or v$(len(v$),1)<>""""then
+                throw "Malformed element: "+s1$,43
+            fi 
+
+            f$=f$(2,len(f$)-2)
+            v$=v$(2,len(v$)-2)      
+            
+            #set(f$,v$)
+        
+        wend
+        
+
+    methodend
+    
+    method public BBjString getJsonString()
+    
+        ks! = #Fields!.keySet()
+        it! = ks!.iterator()
+        while it!.hasNext()
+
+            k$=it!.next()
+            v!=#Fields!.get(k$)
+            
+            cl$ = str(v!.getClass())
+
+            if pos("BBjVector" = cl$)>0 then
+                s$=s$+","""+k$+""":["
+                s1$=""
+                if v!.size() then
+                    for i=0 to v!.size()-1
+                        j! = v!.getItem(i)
+                        if s1$>"" then
+                            s1$=s1$+","
+                        fi
+                        s1$=s1$+j!.getJsonString()
+                    next
+                fi
+                
+                s$=s$+s1$+"]"
+            else
+                s$=s$+","""+k$+""":"""+str(v!)+""""
+            fi
+            
+            
+            
+        wend
+        
+        if s$>"" and s$(1,1)="," then   
+            s$=s$(2)
+        fi
+    
+        s$="{"+s$+"}"
+        methodret s$
+        
+    methodend
+    
+    method public void set(BBjString field$, BBjString value$)
+    
+        #Fields!.put(field$,value$)
+    
+    methodend
+
+
+    method public void set(BBjString field$, BBjVector jsonArray!)
+
+        #Fields!.put(field$,jsonArray!)
+    
+    methodend
+
+    method public String toString()
+    
+        methodret #getJsonString()
+    
+    methodend
+
+classend
+
+
+rem ---------sample code----------------
+j! = new json()
+j!.set("company","BASIS")
+j!.set("url","http://www.basis.com")
+
+
+v! = new BBjVector()
+for i=1 to 10
+    j1! = new json()
+    j1!.set("number",str(i))
+    j1!.set("even",iff(mod(i,2),"no","yes"))
+    v!.addItem(j1!)
+next
+
+j!.set("numbers",v!)
+
+? j!.getJsonString()
+
+rem parse from string
+j2! = new json("{""name"":""Duck"",""nephews"":[{""name"":""Huey""},{""name"":""Dewey""},{""name"":""Louie""}],""firstame"":""Donald""} ")
+? j2!.getJsonString()
