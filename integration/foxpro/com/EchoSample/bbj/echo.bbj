@@ -1,0 +1,4 @@
+Jacob! = new com.jacob.activeX.ActiveXComponent("comtest.vfp2java")
+
+INPUT "Eingabe: ",X$
+PRINT "Echo von FoxPro: ",Jacob!.invoke("Echo",X$)
