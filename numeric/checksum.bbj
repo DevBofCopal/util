@@ -1,0 +1,33 @@
+class public checksum
+
+    method public  static BBjNumber modulo10 (BBjNumber in)
+        
+        dim t[10]
+        
+        t[1] = 0
+        t[2] = 9
+        t[3] = 4
+        t[4] = 6
+        t[5] = 8
+        t[6] = 2
+        t[7] = 7
+        t[8] = 1
+        t[9] = 3
+        t[10]= 5
+        
+
+        n=0
+        
+        inStr$=str(in)
+        
+        FOR i=1 TO LEN(inStr$)
+          n=t[ MOD(n+NUM(inStr$(i,1)),10) + 1 ]
+        NEXT
+        
+        methodret MOD((10-n),10)          
+    
+    methodend
+
+
+classend
+
